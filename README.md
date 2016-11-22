@@ -1,2 +1,9 @@
 # BASH
-Several bash scripts
+Muchos scripts bash.
+
+## lib-cpu.sh
+Librería que permite encolar y ejecutar en forma paralela procesos. Autodetecta los procesadores y paraleliza y encola en función de eso.
+
+## feriados.sh
+Genera los fechas feriadas del año en la Repùblica Argentina.
+
