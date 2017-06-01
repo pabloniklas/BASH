@@ -7,3 +7,5 @@ Librería que permite encolar y ejecutar en forma paralela procesos. Autodetecta
 ## feriados.sh
 Genera los fechas feriadas del año en la Repùblica Argentina.
 
+## centos_local_mirror.sh
+Genera un mirror local para la distribución CentOS.
