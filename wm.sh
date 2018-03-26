@@ -1,5 +1,8 @@
 #!/bin/bash
-
+#
+# Script implementador de marca de agua.
+# By Pablo Niklas
+#
 
 function Reducir {
 
