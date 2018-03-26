@@ -9,3 +9,6 @@ Genera los fechas feriadas del año en la Repùblica Argentina.
 
 ## centos_local_mirror.sh
 Genera un mirror local para la distribución CentOS.
+
+## wm.sh
+Script para estampar marca de agua en fotografias.
