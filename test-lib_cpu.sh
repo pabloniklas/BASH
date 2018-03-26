@@ -2,8 +2,7 @@
 #
 # Programa de muestra.
 #
-#
-#
+
 
 PARALELO=8
 DEBUG=true

@@ -112,7 +112,7 @@ while [ $# != 0 ] || ! $TERMINO; do
             echo "::: Job #${TID[${PID[$A]}]} - Thread #$A - `date +'%d/%m/%Y - %H:%M:%S'` - FINALIZADO." >> $DIRLOG/$JOBLOGTMP.`printf %.3d ${TID[${PID[$A]}]}`.log
             echo >> $DIRLOG/$JOBLOGTMP.`printf %.3d ${TID[${PID[$A]}]}`.log
             echo "::: Job #${TID[${PID[$A]}]} - Thread #$A - `date +'%d/%m/%Y - %H:%M:%S'` - FINALIZADO."  >> $LOGCPU
-             cat $DIRLOG/$JOBLOGTMP.`printf %.3d ${TID[${PID[$A]}]}`.log
+            cat $DIRLOG/$JOBLOGTMP.`printf %.3d ${TID[${PID[$A]}]}`.log
             echo >> $DIRLOG/$JOBLOGTMP.`printf %.3d ${TID[${PID[$A]}]}`.log
             PID[$A]=0
         fi
