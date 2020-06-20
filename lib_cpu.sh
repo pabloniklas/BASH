@@ -21,36 +21,40 @@
 # 07/08/2006 - PSRN - $PARALELO se pasa por variable del parent.
 # 27/08/2006 - PSRN - Se genera un log temporario para ver el avance en general del proceso.
 #                     Se mejoro salida.
-#
+# 12/06/2020 - PSRN - Soporte para MacOS.
 
 function paralelo() {
 
 # PARALELO:
 # Cantidad de procesos en paralelo.
 # Depende de el SO y/o la arquitectura. Puede ser:
-# 1) Cant. de cpus + 1 (x86)
-# 2) Cant. de cpus * 2 (x86)
+# 1) Cant. de cpus + 1 (x86/x86_64)
+# 2) Cant. de cpus * 2 (x86/x86_64)
 # 3) Cant. de cpus     (SPARC)
 if [ -z "$PARALELO" ]; then
-    if [ "`uname -s`"="SunOS" ]; then
+    if [ "`uname -s`" == "SunOS" ]; then
         # Para SunOS...
-        if [ "`uname -r`" = "5.6" ]; then
+        if [ "`uname -r`" == "5.6" ]; then
             PARALELO=`/usr/platform/`uname -m`/sbin/prtdiag -v|grep "US-"|wc -l`    # Solaris 2.6
         else
-            if [ "`uname -r`" = "5.9" ]; then
+            if [ "`uname -r`" == "5.9" ]; then
                 PARALELO=`/usr/platform/`uname -m`/sbin/prtdiag -v|grep ^CPU|wc -l`    # Solaris 9
             else
                 PARALELO=1    # Default
             fi
         fi
     else
-        PARALELO=$((`cat /proc/cpuinfo |grep ^proces|wc -l`*2)) # Linux
+        if [ "`uname -s`" == "Darwin" ]; then
+            PARALELO=$((sysctl machdep.cpu.thread_count|cut -d: -f2)) # MacOS
+        else
+            PARALELO=$((`cat /proc/cpuinfo |grep ^proces|wc -l`*2)) # Linux
+        fi
     fi
 fi
 
 # DIRLOG:
 # Directorio donde se depositan los logs temporarios de cada hilo ejecutado.
-DIRLOG="/tmp"
+DIRLOG="./"
 LOGCPU=$DIRLOG/control_corrida.$$.`date +'%d'`.log
 
 ############################ COMIENZO DEL ALGORITMO ################################
@@ -77,10 +81,6 @@ while [ $# != 0 ] || ! $TERMINO; do
         if [ ${PID[$A]} -eq 0 ] && [ $# != 0 ]; then
             TAREA=$(($TAREA+1))
             echo "::: Job #$TAREA - Thread #$A - `date +'%d/%m/%Y - %H:%M:%S'` - INICIADO." >> $DIRLOG/$JOBLOGTMP.`printf %.3d $TAREA`.log
-            #echo ": COMIENZO detalle del Job." >> $DIRLOG/$JOBLOGTMP.`printf %.3d $TAREA`.log
-            #echo $1 >> $DIRLOG/$JOBLOGTMP.`printf %.3d $TAREA`.log
-            #echo ": FIN detalle del Job." >> $DIRLOG/$JOBLOGTMP.`printf %.3d $TAREA`.log
-            #echo ": COMIENZO salida del Job." >> $DIRLOG/$JOBLOGTMP.`printf %.3d $TAREA`.log
             $1 1>> $DIRLOG/$JOBLOGTMP.`printf %.3d $TAREA`.log 2>&1 &
             PID[$A]=$!
             TID[$!]=$TAREA
@@ -99,13 +99,27 @@ while [ $# != 0 ] || ! $TERMINO; do
 
         # Los distintos *nix, manejan los procesos a su manera. :)
         FINALIZO=false
-        if [ "`uname -s`" = "SunOS" ] && [ ${PID[$A]} -gt 0 ]; then
-            [ -z "`ps -p ${PID[$A]}|grep -v "   PID TTY      TIME CMD"`" ] && FINALIZO=true
-        fi
+        case "`uname -s`" in
 
-        if [ "`uname -s`" = "Linux" ] && [ ${PID[$A]} -gt 0 ]; then
-            [ -z "`ps --no-heading --pid ${PID[$A]}`" ] && FINALIZO=true
-        fi
+            # Solaris
+            "SunOS") if [ ${PID[$A]} -gt 0 ]; then
+                        [ -z "`ps -p ${PID[$A]}|grep -v "   PID TTY      TIME CMD"`" ] && FINALIZO=true
+                     fi
+                     ;;
+
+            # GNU/Linux        
+            "Linux") if [ ${PID[$A]} -gt 0 ]; then
+                        [ -z "`ps --no-heading --pid ${PID[$A]}`" ] && FINALIZO=true
+                     fi
+                     ;;
+
+            # MacOS
+            "Darwin") if [ ${PID[$A]} -gt 0 ]; then
+                        [ -z "`ps -o%cpu="" -p ${PID[$A]}`" ] && FINALIZO=true
+                     fi
+                     ;;
+
+        esac 
 
         if $FINALIZO ; then
             #echo ": FIN salida del Job." >> $DIRLOG/$JOBLOGTMP.`printf %.3d ${TID[${PID[$A]}]}`.log
