@@ -1,4 +1,7 @@
 # BASH
+
+<img src=https://img.shields.io/github/license/pabloniklas/BASH> <img src=https://img.shields.io/github/languages/top/pabloniklas/BASH>
+
 Muchos scripts bash.
 
 ## lib-cpu.sh
